@@ -15,7 +15,7 @@ export default function Home() {
         />
         <div className={styles.intro}>
           <h1>
-            To get started, edit the{" "}
+            To get started, edit the 여기
             <code className={styles.code}>page.tsx</code> file.
           </h1>
           <p>
