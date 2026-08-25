@@ -1,0 +1,318 @@
+.page {
+  width: calc(100% - 40px);
+  max-width: 1280px;
+  min-height: 700px;
+  margin: 0 auto;
+  padding-top: 40px;
+}
+.page h1 {
+  margin: 0;
+  font-size: 28px;
+  padding-bottom: 24px;
+}
+.topBanner {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.topBanner a {
+  position: relative;
+  width: calc(50% - 12px);
+  aspect-ratio: 1 / 1;
+  border-radius: 16px;
+  overflow: hidden;
+  text-decoration: none;
+  color: white;
+}
+
+.topBanner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cardText {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: white;
+  z-index: 1;
+}
+
+.cardText h2 {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cardText p {
+  font-size: 20px;
+  margin: 0;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cardText span {
+  font-size: 24px;
+  font-weight: 700;
+  text-align: right;
+  margin-top: 8px;
+}
+
+.cardOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.7) 100%);
+}
+
+.bottomBanner {
+  width: 100%;
+  object-fit: cover;
+  margin-top: 64px;
+  margin-bottom: 64px;
+}
+
+.reservation {
+  width: 100%;
+}
+.reservation h2 {
+  margin-bottom: 24px;
+}
+.availableBtn {
+  width: 262px;
+  height: 40px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.availableBtn button {
+  width: 123px;
+  border: 0;
+  padding: 8px 16px;
+  font-size: 16px;
+  border-radius: 8px;
+  background-color: white;
+}
+.availableBtn .btn.active {
+  background-color: black;
+  color: #ffffff;
+}
+
+.reservationHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+}
+.inputSection {
+  display: flex;
+  gap: 16px;
+}
+
+.inputWrapper {
+  display: flex;
+  align-items: center;
+  background-color: #f2f2f2;
+  border-radius: 8px;
+  padding: 0 16px;
+  height: 48px;
+}
+
+.inputIcon {
+  font-size: 18px;
+  color: #767676;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.inputWrapper:has(.dateInput) {
+  width: 280px;
+}
+
+.searchInputWrapper {
+  flex: 1;
+}
+
+.inputWrapper input {
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+  color: #333;
+}
+
+.inputWrapper input::placeholder {
+  color: #a1a1a1;
+}
+
+/* 버튼 공통 스타일 */
+.searchBtn,
+.sellBtn {
+  height: 48px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  transition: background-color 0.2s ease;
+}
+.searchBtn {
+  background-color: #000000;
+  color: #ffffff;
+  padding: 0 24px;
+}
+.searchBtn:hover {
+  background-color: #222222;
+}
+
+.sellBtn {
+  background-color: #2b7fff;
+  color: #ffffff;
+  padding: 0 20px;
+  gap: 6px;
+}
+.sellBtn:hover {
+  background-color: #1e6be6;
+}
+
+.btnIcon {
+  font-size: 18px;
+}
+
+.filterBtn {
+  display: flex;
+  margin-top: 24px;
+  justify-content: space-between;
+  gap: 47.5px;
+  width: 100%;
+  height: 104;
+  align-items: center;
+}
+.filterBtn img {
+  cursor: pointer;
+}
+
+.cardArea {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 32px;
+  margin-top: 20px;
+}
+.cardArea > div {
+  position: relative;
+}
+.cardArea img {
+  border-radius: 16px;
+  object-fit: cover;
+  aspect-ratio: 1/1;
+}
+.bookmark {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  border: 0;
+  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.4);
+  width: 53px;
+  height: 32px;
+  padding: 6px;
+  display: flex;
+  color: white;
+  font-size: 14px;
+  align-items: center;
+  text-align: left;
+}
+.cardTitle {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333333;
+  margin-top: 12px;
+}
+.cardContents {
+  font-size: 14px;
+  font-weight: 400;
+  color: #5f5f5f;
+  margin: 4px 0;
+}
+.cardTags {
+  color: #2974e5;
+  font-size: 14px;
+  font-weight: 400;
+}
+.cardInfo {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  align-items: center;
+}
+.userProfile {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 0;
+}
+.user {
+  display: flex;
+  align-items: center;
+  padding: 4px 0;
+}
+.username {
+  color: #5f5f5f;
+  font-size: 14px;
+  font-weight: 300;
+  align-items: center;
+  margin-left: 4px;
+}
+.price {
+  color: #1c1c1c;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.recentBar {
+  width: 96px;
+  height: 300px;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 12px;
+  border: 1px solid #c7c7c7;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: white;
+  z-index: 1;
+}
+.recentList {
+  display: grid;
+  gap: 16px;
+}
+.recentTitle {
+  margin-bottom: 8px;
+}
+.recentList img {
+  aspect-ratio: 1/1;
+  border-radius: 4px;
+}
