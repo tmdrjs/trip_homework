@@ -205,7 +205,7 @@ export default function BuySection() {
               ) : (
                 <div>이미지 없음</div>
               )}
-              <div>
+              <div className={styles.cardInfoArea}>
                 <button className={styles.bookmark}>
                   <img src="/bookmark.png" />
                   <span>{card.bookmarks}</span>
@@ -216,7 +216,7 @@ export default function BuySection() {
                   {card.tags && card.tags.length > 0 && (
                     <div className={styles.cardTags}>
                       {card.tags.map((tag, idx) => (
-                        <span key={idx}>#{tag}</span>
+                        <span key={idx}>#{tag} </span>
                       ))}
                     </div>
                   )}
@@ -240,8 +240,8 @@ export default function BuySection() {
         <div className={styles.recentTitle}>최근 본 상품</div>
         <div className={styles.recentList}>
           <img src="/01a0e2ed16b1635ee65d3521b8e6c956cee739d1.jpg" alt="1" />
-          <img src="/01a0e2ed16b1635ee65d3521b8e6c956cee739d1.jpg" alt="2" />
-          <img src="/01a0e2ed16b1635ee65d3521b8e6c956cee739d1.jpg" alt="3" />
+          <img src="/2aa6de8b2fd3dbd42536eb0596de11c9.jpg" alt="2" />
+          <img src="/23e24f5fb6d114299662784db4a1b0301fa11ed6.jpg" alt="3" />
         </div>
       </div>
     </div>
