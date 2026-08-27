@@ -5,10 +5,14 @@ import { useQuery } from "@apollo/client";
 import Link from "next/link";
 import styles from "./styles.module.css";
 import { FiCalendar, FiSearch, FiEdit3 } from "react-icons/fi";
-import { FETCH_BOARDS } from "@/graphql/queries"; // 현재 사용 중인 GraphQL 쿼리
+import { FETCH_BOARDS } from "@/graphql/queries";
 import { Card, MOCK_CARDS } from "@/types/card";
 
-export default function BuySection() {
+interface BuySectionProps {
+  onStartSell?: () => void;
+}
+
+export default function BuySection({ onStartSell }: BuySectionProps) {
   const { data, loading, error } = useQuery(FETCH_BOARDS, {
     variables: { page: 1 },
     errorPolicy: "all",
@@ -16,7 +20,6 @@ export default function BuySection() {
 
   const getCardsToRender = (): Card[] => {
     if (error || !data) return MOCK_CARDS;
-
     const rawItems = data.fetchBoards || data.fetchUseditems || [];
 
     if (rawItems.length === 0) return MOCK_CARDS;
@@ -112,6 +115,7 @@ export default function BuySection() {
     },
   ];
   const cards = getCardsToRender();
+
   return (
     <div className={styles.page}>
       <h1>2024 끝여름 낭만있게 마무리 하고 싶다면?</h1>
@@ -180,7 +184,7 @@ export default function BuySection() {
             {/* 버튼 영역 */}
             <button className={styles.searchBtn}>검색</button>
           </div>
-          <button className={styles.sellBtn}>
+          <button className={styles.sellBtn} onClick={onStartSell}>
             <FiEdit3 className={styles.btnIcon} />
             숙박권 판매하기
           </button>
