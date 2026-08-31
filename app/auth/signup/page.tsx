@@ -41,7 +41,9 @@ export default function SignupPage() {
       // 회원가입이 성공하면 피그마처럼 축하 모달을 보여줘요.
       setIsSignupModalOpen(true);
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "회원가입에 실패했어요.");
+      setErrorMessage(
+        error instanceof Error ? error.message : "회원가입에 실패했어요.",
+      );
     }
   };
 
@@ -50,10 +52,14 @@ export default function SignupPage() {
       <section className={`${styles.formSide} ${styles.signupSide}`}>
         <div className={`${styles.formBox} ${styles.signupBox}`}>
           <h1>회원가입</h1>
-          <p className={styles.description}>회원가입을 위해 아래 모든 정보를 입력해주세요.</p>
+          <p className={styles.description}>
+            회원가입을 위해 아래 모든 정보를 입력해주세요.
+          </p>
 
           <form className={styles.form} onSubmit={onSubmitSignup}>
-            <label htmlFor="email">이메일 <span>*</span></label>
+            <label htmlFor="email">
+              이메일 <span>*</span>
+            </label>
             <input
               className={errorMessage ? styles.inputError : ""}
               id="email"
@@ -63,7 +69,9 @@ export default function SignupPage() {
               placeholder="이메일을 입력해 주세요."
             />
 
-            <label htmlFor="name">이름 <span>*</span></label>
+            <label htmlFor="name">
+              이름 <span>*</span>
+            </label>
             <input
               className={errorMessage ? styles.inputError : ""}
               id="name"
@@ -72,7 +80,9 @@ export default function SignupPage() {
               placeholder="이름을 입력해 주세요."
             />
 
-            <label htmlFor="password">비밀번호 <span>*</span></label>
+            <label htmlFor="password">
+              비밀번호 <span>*</span>
+            </label>
             <input
               className={errorMessage ? styles.inputError : ""}
               id="password"
@@ -82,7 +92,9 @@ export default function SignupPage() {
               placeholder="비밀번호를 입력해 주세요."
             />
 
-            <label htmlFor="passwordCheck">비밀번호 확인 <span>*</span></label>
+            <label htmlFor="passwordCheck">
+              비밀번호 확인 <span>*</span>
+            </label>
             <input
               className={errorMessage ? styles.inputError : ""}
               id="passwordCheck"
@@ -93,7 +105,11 @@ export default function SignupPage() {
             />
 
             <p className={styles.error}>{errorMessage}</p>
-            <button className={styles.submitButton} type="submit" disabled={loading}>
+            <button
+              className={styles.submitButton}
+              type="submit"
+              disabled={loading}
+            >
               {loading ? "가입 중..." : "회원가입"}
             </button>
           </form>

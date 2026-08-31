@@ -110,7 +110,10 @@
   font-size: 15px;
   line-height: 1.6;
 }
-
+.editorContent p {
+  color: #ababab;
+  margin: 0;
+}
 .editorContent :global(.ProseMirror) {
   min-height: 280px;
   outline: none;
@@ -150,4 +153,20 @@
   border: none;
   border-top: 1px solid #cbd5e1;
   margin: 16px 0;
+}
+
+.ProseMirror-focused {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+.ProseMirror :focus-visible {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+.ProseMirror :focus {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
 }

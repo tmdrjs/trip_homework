@@ -2,8 +2,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import styles from "./styles.module.css";
+import AuthGuard from "@/components/auth/AuthGuard";
 
-export default function BoardNewPage() {
+function BoardPage() {
   const [title, setTitle] = useState<string>("");
   const [writer, setWriter] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -104,5 +105,13 @@ export default function BoardNewPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function BoardNewPage() {
+  return (
+    <AuthGuard>
+      <BoardPage />
+    </AuthGuard>
   );
 }

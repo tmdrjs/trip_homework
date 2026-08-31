@@ -9,6 +9,7 @@ import Highlight from "@tiptap/extension-highlight";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import TextAlign from "@tiptap/extension-text-align";
+import Placeholder from "@tiptap/extension-placeholder";
 
 import {
   Bold,
@@ -46,8 +47,12 @@ export default function TiptapEditor() {
       Link.configure({ openOnClick: false }),
       Image,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
+      Placeholder.configure({
+        // 텍스트 지정
+        placeholder: "", // 안됨 //
+      }),
     ],
-    content: "",
+    content: "내용을 입력해 주세요.",
     editorProps: {
       attributes: {
         class: styles.editorContent,

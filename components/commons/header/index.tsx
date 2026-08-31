@@ -31,6 +31,7 @@ export default function Header() {
     setAccessToken("");
     await client.clearStore();
     router.push("/");
+    window.location.reload();
   };
 
   const user = data?.fetchUserLoggedIn;
@@ -64,7 +65,7 @@ export default function Header() {
         </nav>
 
         {accessToken === "" ? (
-          <Link className={styles.loginButton} href="/login">
+          <Link className={styles.loginButton} href="/auth/login">
             로그인 <span>›</span>
           </Link>
         ) : (

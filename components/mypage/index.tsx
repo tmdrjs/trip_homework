@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import styles from "./styles.module.css";
+import type { LoggedInUserData } from "@/types/auth";
 
 const CardInfo = [
   {
@@ -380,13 +381,26 @@ function PasswordChangeView() {
     </form>
   );
 }
+// ---------------------------------------------------------------------- //
 
+type UserType = LoggedInUserData["fetchUserLoggedIn"];
+
+interface MyPageProps {
+  // data?.fetchUserLoggedIn 은 undefined 가 될 수 있고,
+  // API 응답 구조에 따라 null 일 수도 있으므로 두 가능성을 모두 열어둡니다.
+  user?: UserType | null;
+  point?: number;
+}
 // ---------------------------------------------------------------------- //
 //  마이페이지                                                               //
 // ---------------------------------------------------------------------- //
 
-export default function MyPage() {
+export default function MyPage({ user, point }: MyPageProps) {
   const [activeTab, setActiveTab] = useState("history");
+
+  if (!user) {
+    return <p>사용자 정보가 없습니다.</p>;
+  }
 
   return (
     <div className={styles.page}>
@@ -399,11 +413,11 @@ export default function MyPage() {
             <div className={styles.infoTitle}>내 정보</div>
             <div className={styles.userInfo}>
               <button className={styles.userProfile}></button>
-              <div className={styles.infoName}>{info.name}</div>
+              <div className={styles.infoName}>{user?.name}</div>
             </div>
             <div className={styles.infoPoint}>
               <img src="/point.png" alt="포인트" />
-              {Number(info.point).toLocaleString()} P
+              {point?.toLocaleString() ?? 404} P
             </div>
           </div>
         ))}

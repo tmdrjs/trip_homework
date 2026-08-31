@@ -184,10 +184,10 @@ export default function BuySection({ onStartSell }: BuySectionProps) {
             {/* 버튼 영역 */}
             <button className={styles.searchBtn}>검색</button>
           </div>
-          <button className={styles.sellBtn} onClick={onStartSell}>
+          <Link className={styles.sellBtn} href="/travelproducts/sell">
             <FiEdit3 className={styles.btnIcon} />
             숙박권 판매하기
-          </button>
+          </Link>
         </div>
         <div className={styles.filterBtn}>
           {filterImg.map((btn, index) => (
