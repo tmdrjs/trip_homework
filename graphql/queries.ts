@@ -61,3 +61,50 @@ export const Fetch_Travel_Products = gql`
     }
   }
 `;
+
+export const FETCH_TRAVEL_PRODUCT = gql`
+  query FetchTravelproduct($travelproductId: ID!) {
+    fetchTravelproduct(travelproductId: $travelproductId) {
+      _id
+      name
+      remarks
+      contents
+      price
+      tags
+      images
+      pickedCount
+      soldAt
+      createdAt
+      seller {
+        _id
+        name
+      }
+      travelproductAddress {
+        zipcode
+        address
+        addressDetail
+        lat
+        lng
+      }
+      buyer {
+        _id
+        name
+      }
+    }
+  }
+`;
+
+export const FETCH_USED_ITEMS = gql`
+  query fetchUseditems($page: Int, $search: String) {
+    fetchUseditems(page: $page, search: $search) {
+      _id
+      name
+      remarks
+      price
+      tags
+      images
+      pickedCount
+      createdAt
+    }
+  }
+`;

@@ -5,7 +5,9 @@ type BoardDetailPageProps = {
   params: Promise<{ boardId: string }>;
 };
 
-export default async function BoardDetailPage({ params }: BoardDetailPageProps) {
+export default async function BoardDetailPage({
+  params,
+}: BoardDetailPageProps) {
   // [boardId]처럼 대괄호 폴더로 만든 주소는 params로 값을 받아요.
   const { boardId } = await params;
 

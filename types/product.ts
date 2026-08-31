@@ -1,4 +1,4 @@
-export type Travelproduct = {
+export type Product = {
   _id: string | number;
   name: string;
   remarks: string;

@@ -1,0 +1,146 @@
+/* ==========================================================================
+    페이지 레이아웃
+   ========================================================================== */
+.page {
+  width: calc(100% - 40px);
+  max-width: 1280px;
+  min-height: 700px;
+  margin: 0 auto;
+  padding-top: 40px;
+  font-size: 16px;
+  font-weight: 500;
+}
+.page .topSection h1 {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 28px;
+  padding-bottom: 40px;
+}
+.page p {
+  margin: 0;
+  margin-top: 8px;
+}
+.product {
+  display: grid;
+  grid-column: 1fr;
+  width: 100%;
+}
+.topSection {
+  display: flex;
+  justify-content: space-between;
+  height: auto;
+}
+.iconSection {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.iconSection button {
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  border: 0;
+  background-color: #00000066;
+  padding: 6px 8px;
+  color: white;
+  box-shadow: 0px 0px 8px #00000040;
+  font-size: 14px;
+}
+.tagSection {
+  width: 100%;
+  color: #2974e5;
+  margin-top: 8px;
+}
+
+.productSection {
+  display: flex;
+  gap: 24px;
+  width: 100%;
+  height: 100%;
+  max-width: 1280px;
+}
+.mainImgSection {
+  flex: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  aspect-ratio: 32/9;
+}
+.sideImgSection {
+  position: relative;
+  width: 180px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  max-height: 600px; /* 예시: 컨테이너의 최대 높이를 고정하여 스크롤 유도 (이미지 비율에 따라 조정 필요) */
+  overflow-y: scroll;
+}
+.imgOverlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.7) 100%
+  );
+}
+.imgContainer {
+  width: 100%;
+  aspect-ratio: 45/34;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.imgContainer img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.purchaseSection {
+  width: 420px;
+  border: 1px solid #e4e4e4;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.purchaseSection p {
+  margin: 0;
+  margin-bottom: 8px;
+  font-size: 24px;
+  font-weight: 700;
+}
+.productSection ul {
+  align-items: center;
+  padding: 0;
+  padding-left: 24px;
+}
+.purchaseSection ul li {
+  font-size: 14px;
+  font-weight: 300;
+  color: #5f5f5f;
+  margin-bottom: 4px;
+}
+.purchaseSection button {
+  width: 100%;
+  padding: 14px;
+  text-align: center;
+  background-color: #2974e5;
+  border: 0;
+  border-radius: 8px;
+  font-size: 20px;
+  color: white;
+  font-weight: 600;
+}
+
+.sellerSection {
+  padding: 24px;
+  background-color: #f2f2f2;
+}
+.sellerSection p {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
