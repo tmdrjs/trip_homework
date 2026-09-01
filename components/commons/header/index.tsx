@@ -3,7 +3,7 @@
 import { useApolloClient, useQuery } from "@apollo/client/react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FETCH_USER_LOGGED_IN } from "@/graphql/queries";
 import type { User } from "@/types/user";
 import styles from "./styles.module.css";
@@ -13,12 +13,13 @@ export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
 
-  // 처음 state를 만들 때 브라우저에 저장된 토큰을 한 번 읽어요.
-  const [accessToken, setAccessToken] = useState(() => {
-    if (typeof window === "undefined") return "";
-    return localStorage.getItem("accessToken") ?? "";
-  });
+  const [accessToken, setAccessToken] = useState("");
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken") ?? "";
+    setAccessToken(token);
+  }, []);
 
   const { data } = useQuery<{ fetchUserLoggedIn: User }>(FETCH_USER_LOGGED_IN, {
     skip: accessToken === "",

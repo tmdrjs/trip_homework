@@ -1,5 +1,6 @@
 "use client";
 
+import { gql } from "@apollo/client";
 import { useState } from "react";
 import { useQuery } from "@apollo/client";
 import Link from "next/link";
@@ -8,52 +9,72 @@ import { FiCalendar, FiSearch, FiEdit3 } from "react-icons/fi";
 import { FETCH_BOARDS } from "@/graphql/queries";
 import { Card, MOCK_CARDS } from "@/types/card";
 
+const FETCH_TRAVELPRODUCTS = gql`
+  query FetchTravelproducts($page: Int) {
+    fetchTravelproducts(page: $page) {
+      _id
+      name
+      remarks
+      price
+      images
+      contents
+      tags
+      pickedCount
+      soldAt
+      seller {
+        name
+      }
+    }
+  }
+`;
+
+type Travelproduct = {
+  _id: string;
+  name: string;
+  remarks: string;
+  price: number;
+  images: string[];
+  contents: string;
+  tags: string[];
+  pickedCount: number;
+  soldAt: boolean;
+  seller: {
+    name: string;
+  };
+};
+
+type FetchTravelproductsData = {
+  fetchTravelproducts: Travelproduct[];
+};
+
+const getImageUrl = (path: string) => {
+  if (path.startsWith("http")) return path;
+  return `https://storage.googleapis.com/${path}`;
+};
+
 interface BuySectionProps {
   onStartSell?: () => void;
 }
 
 export default function BuySection({ onStartSell }: BuySectionProps) {
-  const { data, loading, error } = useQuery(FETCH_BOARDS, {
-    variables: { page: 1 },
-    errorPolicy: "all",
-  });
+  const [activeIndex, setActiveIndex] = useState(0);
 
-  const getCardsToRender = (): Card[] => {
-    if (error || !data) return MOCK_CARDS;
-    const rawItems = data.fetchBoards || data.fetchUseditems || [];
+  const { data, loading, error } = useQuery<FetchTravelproductsData>(
+    FETCH_TRAVELPRODUCTS,
+    {
+      variables: { page: 1 },
+      context: { apiName: "practice" },
+    },
+  );
 
-    if (rawItems.length === 0) return MOCK_CARDS;
-
-    const convertedCards: Card[] = rawItems.map((item: any) => ({
-      id: item._id || item.id || "",
-      title: item.title || item.name || "",
-      contents: item.contents || item.remarks || "",
-      price: item.price ?? 0,
-      userName: item.writer || item.seller?.name || "",
-      bookmarks: item.likeCount || item.pickedCount || 0,
-      img: item.images?.[0]
-        ? item.images[0].startsWith("http")
-          ? item.images[0]
-          : `https://storage.googleapis.com/${item.images[0]}`
-        : null,
-      tags: item.tags || [],
-    }));
-
-    const hasInvalidCard = convertedCards.some(
-      (card) =>
-        !card.id ||
-        !card.title.trim() ||
-        !card.contents.trim() ||
-        card.price <= 0 ||
-        !card.userName.trim(),
+  if (loading)
+    return <main className={styles.page}>숙박권을 불러오는 중...</main>;
+  if (error)
+    return (
+      <main className={styles.error}>
+        속박권을 불러오는 중 오류가 발생했습니다.
+      </main>
     );
-
-    if (hasInvalidCard) {
-      return MOCK_CARDS;
-    }
-
-    return convertedCards;
-  };
 
   const boards = [
     {
@@ -72,8 +93,6 @@ export default function BuySection({ onStartSell }: BuySectionProps) {
       image: "/01a0e2ed16b1635ee65d3521b8e6c956cee739d1.jpg",
     },
   ];
-
-  const [activeIndex, setActiveIndex] = useState(0);
 
   const filterImg = [
     {
@@ -114,7 +133,16 @@ export default function BuySection({ onStartSell }: BuySectionProps) {
       image: "/Frame 427323237.png",
     },
   ];
-  const cards = getCardsToRender();
+  const IMAGES = [
+    "/f71f586e48aa048c2fa07145d5b85734bd66003b.jpg",
+    "/3f5f7099eed49eb3fcfca53f039677b5db712985.jpg",
+    "/23e24f5fb6d114299662784db4a1b0301fa11ed6.jpg",
+    "/01a0e2ed16b1635ee65d3521b8e6c956cee739d1.jpg",
+    "/31b845e43dac602eaab5648ae5f5c928.jpg",
+    "/2aa6de8b2fd3dbd42536eb0596de11c9.jpg",
+    "/b099db67daa04d8d9feb8f33b8753fbc63587552.jpg",
+    "/e5c2acc669e397de5dea5dfc4cf5a747b7fc6f14.jpg",
+  ];
 
   return (
     <div className={styles.page}>
@@ -199,35 +227,42 @@ export default function BuySection({ onStartSell }: BuySectionProps) {
           ))}
         </div>
         <div className={styles.cardArea}>
-          {cards.map((card) => (
-            <div key={card.id}>
-              {card.img ? (
-                <img
-                  src={card.img.replace("@/public/", "/")}
-                  alt="카드이미지"
-                />
+          {data?.fetchTravelproducts.map((card, index) => (
+            <Link
+              href={`/travelproducts/${card._id}?imgIndex=${index % IMAGES.length}`}
+              key={card._id}
+            >
+              {card.images?.[0] ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={getImageUrl(card.images[0])} alt={card.name} />
               ) : (
-                <div>이미지 없음</div>
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={IMAGES[index % IMAGES.length]}
+                  alt={card.name ?? "상품 이미지"}
+                />
               )}
               <div className={styles.cardInfoArea}>
                 <button className={styles.bookmark}>
                   <img src="/bookmark.png" />
-                  <span>{card.bookmarks}</span>
+                  <span>{card.pickedCount}</span>
                 </button>
                 <div className={styles.cardDescription}>
-                  <div className={styles.cardTitle}>{card.title}</div>
-                  <div className={styles.cardContents}>{card.contents}</div>
-                  {card.tags && card.tags.length > 0 && (
+                  <div className={styles.cardTitle}>{card.name}</div>
+                  <div className={styles.cardContents}>{card.remarks}</div>
+                  {card.tags && card.tags.length > 0 ? (
                     <div className={styles.cardTags}>
                       {card.tags.map((tag, idx) => (
                         <span key={idx}>#{tag} </span>
                       ))}
                     </div>
+                  ) : (
+                    "\u00A0"
                   )}
                   <div className={styles.cardInfo}>
                     <div className={styles.user}>
                       <button className={styles.userProfile}></button>
-                      <div className={styles.username}>{card.userName}</div>
+                      <div className={styles.username}>{card.seller?.name}</div>
                     </div>
 
                     <span className={styles.price}>
@@ -236,7 +271,7 @@ export default function BuySection({ onStartSell }: BuySectionProps) {
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
