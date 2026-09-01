@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import styles from "./styles.module.css";
 import type { LoggedInUserData } from "@/types/auth";
 
@@ -34,12 +34,15 @@ const MOCK_DATA = Array.from({ length: 10 }, (_, index) => ({
 }));
 
 // ----------------------------------------------------------------------
-//  재사용 컴포넌트
+//  재사용 컴포넌트 (인라인 타입 선언)
 // ----------------------------------------------------------------------
 
 function SearchArea({
   placeholder = "필요한 내용을 검색해 주세요.",
   onSearch,
+}: {
+  placeholder?: string;
+  onSearch?: () => void;
 }) {
   return (
     <div className={styles.searchArea}>
@@ -56,7 +59,15 @@ function SearchArea({
   );
 }
 
-function Pagination({ currentPage, totalPages = 5, onPageChange }) {
+function Pagination({
+  currentPage,
+  totalPages = 5,
+  onPageChange,
+}: {
+  currentPage: number;
+  totalPages?: number;
+  onPageChange: (page: number) => void;
+}) {
   return (
     <div className={styles.pagination}>
       <button className={styles.pageArrow}>&lt;</button>
@@ -76,13 +87,25 @@ function Pagination({ currentPage, totalPages = 5, onPageChange }) {
   );
 }
 
-function DataTable({
+function DataTable<T extends Record<string, any>>({
   columns,
   data = [],
-  keyField = "id",
+  keyField = "id" as keyof T,
   hasPagination = false,
   page = 1,
   onPageChange,
+}: {
+  columns: {
+    header: string;
+    accessor?: keyof T;
+    className?: string;
+    render?: (item: T) => ReactNode;
+  }[];
+  data?: T[];
+  keyField?: keyof T;
+  hasPagination?: boolean;
+  page?: number;
+  onPageChange?: (page: number) => void;
 }) {
   return (
     <div className={styles.container}>
@@ -106,7 +129,11 @@ function DataTable({
             >
               {columns.map((col, colIdx) => (
                 <span key={`col-${colIdx}`} className={col.className}>
-                  {col.render ? col.render(item) : item[col.accessor]}
+                  {col.render
+                    ? col.render(item)
+                    : col.accessor
+                      ? item[col.accessor]
+                      : null}
                 </span>
               ))}
             </div>
@@ -114,7 +141,7 @@ function DataTable({
         })}
       </div>
 
-      {hasPagination && (
+      {hasPagination && onPageChange && (
         <Pagination currentPage={page} onPageChange={onPageChange} />
       )}
     </div>
@@ -129,7 +156,14 @@ function TransactionAndBookmarkView() {
   const [detailTab, setDetailTab] = useState("products");
   const tenProducts = Array(10).fill(ProductList[0]);
 
-  const productColumns = [
+  type ProductType = (typeof ProductList)[0];
+
+  const productColumns: {
+    header: string;
+    accessor?: keyof ProductType;
+    className?: string;
+    render?: (item: ProductType) => ReactNode;
+  }[] = [
     { header: "번호", accessor: "number", className: styles.numberCell },
     { header: "상품 명", accessor: "name", className: styles.productCell },
     {
@@ -147,7 +181,12 @@ function TransactionAndBookmarkView() {
     },
   ];
 
-  const bookmarkColumns = [
+  const bookmarkColumns: {
+    header: string;
+    accessor?: keyof ProductType;
+    className?: string;
+    render?: (item: ProductType) => ReactNode;
+  }[] = [
     { header: "번호", accessor: "number", className: styles.numberCell },
     { header: "상품 명", accessor: "name", className: styles.productCell },
     {
@@ -190,7 +229,9 @@ function TransactionAndBookmarkView() {
 }
 
 function PointHistoryView() {
-  const [currentTab, setCurrentTab] = useState("all");
+  const [currentTab, setCurrentTab] = useState<
+    "all" | "chargeHistory" | "buyHistory" | "sellHistory"
+  >("all");
   const [page, setPage] = useState(1);
 
   const tabs = [
@@ -198,9 +239,19 @@ function PointHistoryView() {
     { id: "chargeHistory", label: "충전내역" },
     { id: "buyHistory", label: "구매내역" },
     { id: "sellHistory", label: "판매내역" },
-  ];
+  ] as const;
 
-  const columnConfigs = {
+  type MockItemType = (typeof MOCK_DATA)[0];
+
+  const columnConfigs: Record<
+    "all" | "chargeHistory" | "buyHistory" | "sellHistory",
+    {
+      header: string;
+      accessor?: keyof MockItemType;
+      className?: string;
+      render?: (item: MockItemType) => ReactNode;
+    }[]
+  > = {
     all: [
       { header: "날짜", accessor: "date", className: styles.date },
       {
@@ -326,17 +377,20 @@ function PasswordChangeView() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const isValid = password.length > 0 && password === confirmPassword;
-  const handleSubmit = (e) => {
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (isValid) {
       setIsModalOpen(true);
     }
   };
+
   const handleClose = () => {
     setIsModalOpen(false);
     setPassword("");
     setConfirmPassword("");
   };
+
   return (
     <form className={styles.passwordContainer} onSubmit={handleSubmit}>
       <div className={styles.passwordTitle}>비밀번호 변경</div>
@@ -381,21 +435,22 @@ function PasswordChangeView() {
     </form>
   );
 }
+
 // ---------------------------------------------------------------------- //
 
 type UserType = LoggedInUserData["fetchUserLoggedIn"];
 
-interface MyPageProps {
-  // data?.fetchUserLoggedIn 은 undefined 가 될 수 있고,
-  // API 응답 구조에 따라 null 일 수도 있으므로 두 가능성을 모두 열어둡니다.
-  user?: UserType | null;
-  point?: number;
-}
 // ---------------------------------------------------------------------- //
 //  마이페이지                                                               //
 // ---------------------------------------------------------------------- //
 
-export default function MyPage({ user, point }: MyPageProps) {
+export default function MyPage({
+  user,
+  point,
+}: {
+  user?: UserType | null;
+  point?: number;
+}) {
   const [activeTab, setActiveTab] = useState("history");
 
   if (!user) {
