@@ -29,3 +29,10 @@ export const CREATE_BOARD = gql`
     }
   }
 `;
+export const CREATE_TRAVELPRODUCT = gql`
+  mutation CreateTravelproduct($input: CreateTravelproductInput!) {
+    createTravelproduct(createTravelproductInput: $input) {
+      _id
+    }
+  }
+`;

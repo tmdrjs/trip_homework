@@ -36,7 +36,11 @@ import {
 
 import styles from "./tiptapeditor.module.css";
 
-export default function TiptapEditor() {
+interface TiptapEditorProps {
+  onChange: (content: string) => void; // 부모로 전달할 함수 타입 선언
+}
+
+export default function TiptapEditor({ onChange }: TiptapEditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -57,6 +61,11 @@ export default function TiptapEditor() {
       attributes: {
         class: styles.editorContent,
       },
+    },
+    onUpdate: ({ editor }) => {
+      // 에디터 내용이 변경될 때마다 부모의 setContents 실행
+      const html = editor.getHTML();
+      onChange(html);
     },
   });
 

@@ -63,7 +63,7 @@
   outline: none;
 }
 .sideSection {
-  flex: 0.35;
+  flex: 0.32;
 }
 .addressSection {
   display: flex;
@@ -95,20 +95,28 @@ input::-webkit-inner-spin-button {
   font-weight: 600;
 }
 .mapSection {
-  flex: 0.65;
+  flex: 0.68;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
+.map,
 .mapContainer {
   display: flex;
   width: 100%;
   height: 100%;
   background-color: #e4e4e4;
+  border: 1px solid #d9d9d9;
   border-radius: 16px;
   margin-bottom: 40px;
   align-items: center;
   justify-content: center;
   color: #777777;
+}
+.mapContainer {
+  position: absolute;
+  height: 312px;
+  top: 27px;
 }
 .latSection {
   margin-bottom: 16px;
@@ -116,19 +124,68 @@ input::-webkit-inner-spin-button {
 .lngSection {
   margin-bottom: 40px;
 }
+.latSection input,
+.lngSection input {
+  border: 0;
+  background-color: #f2f2f2;
+}
 .imgContainer {
+  display: flex;
+  gap: 16px;
+}
+.imgLoading,
+.imgPreview > img,
+.img {
+  display: flex;
+  position: relative;
   width: 160px;
-  aspect-ratio: 1/1;
+  height: 160px;
   border-radius: 8px;
   background-color: #f2f2f2;
+  color: #777777;
+  object-fit: cover;
+  justify-content: center;
+  align-items: center;
+}
+.imgPreview {
+  position: relative;
+}
+.deleteBtn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 24px;
+  height: 24px;
+  background-color: #00000066;
+  border-radius: 50%;
+  border: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.deleteBtn img {
+  background-color: rgba(0, 0, 0, 0);
+  width: 16px;
+  height: 16px;
+}
+.img input {
+  position: absolute;
+}
+.img input[type="file"] {
+  display: none;
+}
+.img label {
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  color: #777777;
   font-size: 16px;
   font-weight: 400;
 }
+
 .btnSection {
   display: flex;
   justify-content: end;
