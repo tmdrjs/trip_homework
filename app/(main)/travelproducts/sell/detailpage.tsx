@@ -26,7 +26,7 @@ const getImageUrl = (path: string) => {
 };
 
 type DaumPostcode = new (options: {
-  oncomplete: (data: { address: string }) => void;
+  oncomplete: (data: { address: string; zonecode: string }) => void;
 }) => { open: () => void };
 
 declare global {
@@ -72,6 +72,7 @@ export default function SellPageContent() {
 
     new Postcode({
       oncomplete: async (data) => {
+        setZipCode(data.zonecode);
         setAddress(data.address);
         setGeocoding(true);
 
@@ -178,7 +179,7 @@ export default function SellPageContent() {
       });
 
       const productId = result.data?.createTravelproduct._id;
-      if (productId) router.push(`/practice/travelproducts/${productId}`);
+      if (productId) router.push(`/travelproducts/${productId}`);
     } catch (error) {
       alert(
         error instanceof Error ? error.message : "숙박권 등록에 실패했어요.",
@@ -256,7 +257,7 @@ export default function SellPageContent() {
               </div>
               <div className={styles.zipCode}>
                 <input
-                  type="number"
+                  type="text"
                   placeholder="01234"
                   className={styles.zipCodeInput}
                   value={zipCode}
@@ -351,8 +352,10 @@ export default function SellPageContent() {
         <div className={styles.btnSection}>
           <Link href="./">
             <button>취소</button>
-            <button disabled={!hasValue}>등록하기</button>
           </Link>
+          <button type="submit" disabled={!hasValue || loading}>
+            {loading ? "등록 중..." : "등록하기"}
+          </button>
         </div>
       </form>
     </main>

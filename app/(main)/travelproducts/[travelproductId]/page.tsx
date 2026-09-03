@@ -2,8 +2,9 @@
 
 import { gql } from "@apollo/client";
 import Link from "next/link";
+import { DELETE_TRAVELPRODUCT } from "@/graphql/mutations";
 import { useMutation, useQuery } from "@apollo/client/react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import type { FormEvent } from "react";
 import styles from "./styles.module.css";
@@ -29,6 +30,7 @@ const FETCH_TRAVELPRODUCT = gql`
       images
       pickedCount
       seller {
+        _id
         name
       }
     }
@@ -104,7 +106,7 @@ const DELETE_QUESTION = gql`
   }
 `;
 
-type User = { name: string };
+type User = { _id: string; name: string };
 type Question = {
   _id: string;
   contents: string;
@@ -161,6 +163,7 @@ const IMAGE = [
   "/b099db67daa04d8d9feb8f33b8753fbc63587552.jpg",
   /* "/b099db67daa04d8d9feb8f33b8753fbc63587552.jpg", */
 ];
+
 function AnswerArea({
   questionId,
   onClose,
@@ -263,6 +266,7 @@ export default function BoardDetailPage() {
   const ICONS = ["/delete.png", "/link.png", "/location.png"];
   const params = useParams<{ travelproductId: string }>();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const travelproductId = params.travelproductId;
   const { data: userData } = useQuery<UserLoggedInData>(FETCH_USER_LOGGED_IN);
   const loggedInUser = userData?.fetchUserLoggedIn;
@@ -294,6 +298,23 @@ export default function BoardDetailPage() {
       await questionsResult.refetch();
     } catch (error) {
       alert(error instanceof Error ? error.message : "문의 등록에 실패했어요.");
+    }
+  };
+  const [deleteTravelproduct, { loading: deleting }] =
+    useMutation(DELETE_TRAVELPRODUCT);
+
+  const onDeleteProduct = async () => {
+    const isConfirm = confirm("정말 이 상품을 삭제하시겠습니까?");
+    if (!isConfirm) return;
+
+    try {
+      await deleteTravelproduct({
+        variables: { travelproductId },
+      });
+      alert("상품이 삭제되었습니다.");
+      router.push("/travelproducts");
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "상품 삭제에 실패했어요.");
     }
   };
   const onDeleteQuestion = (questionId: string) => async () => {
@@ -329,10 +350,19 @@ export default function BoardDetailPage() {
           <div className={styles.titleSection}>
             <h1>{product.name}</h1>
             <div className={styles.iconSection}>
-              {ICONS.map((path, index) => (
-                <img key={index} src={path} alt={`icon-${index}`} />
-              ))}
-              <button>
+              {loggedInUser?._id === product.seller?._id && (
+                <button
+                  className={styles.deleteBtn}
+                  type="button"
+                  onClick={onDeleteProduct}
+                  disabled={deleting}
+                >
+                  <img src="/delete.png" alt="삭제" />
+                </button>
+              )}
+              <img src="/link.png" alt="link-icon" />
+              <img src="/location.png" alt="location-icon" />
+              <button className={styles.bookmarkBtn}>
                 <img src="/bookmark.png" alt="북마크" />
                 {product.pickedCount}
               </button>
@@ -354,31 +384,43 @@ export default function BoardDetailPage() {
             <div className={styles.productSection}>
               <div className={styles.mainImgSection}>
                 {product.images?.[0] ? (
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={getImageUrl(product.images[0])}
                     alt={product.name}
                   />
                 ) : (
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={IMAGES[imgIndex % IMAGES.length]}
                     alt={product.name ?? "상품 이미지"}
                   />
                 )}
               </div>
-              <div className={styles.sideImgSection}>
-                {IMAGE.map((url, index) => (
-                  <div key={index} className={styles.imgContainer}>
-                    <img key={index} src={url} alt={`image-${index}`} />
-                  </div>
-                ))}
-                <div className={styles.imgOverlay}></div>
+              <div className={styles.sideImgWrapper}>
+                <div className={styles.sideImgSection}>
+                  {(product.images && product.images.length > 1
+                    ? product.images.slice(1)
+                    : []
+                  ).map((url, index) => (
+                    <div
+                      key={`${url}-${index}`}
+                      className={styles.imgContainer}
+                    >
+                      <img
+                        src={getImageUrl(url)}
+                        alt={`상세 이미지 ${index + 2}`}
+                      />
+                    </div>
+                  ))}
+                </div>
+                <div className={styles.sideImgOverlay}></div>
               </div>
             </div>
             <div className={styles.descriptionSection}>
               <h2>상세 설명</h2>
-              <p>{product.contents}</p>
+              <div
+                className={styles.contentsView}
+                dangerouslySetInnerHTML={{ __html: product.contents }}
+              />
             </div>
             <div className={styles.locationSection}>
               <h2>상세 위치</h2>

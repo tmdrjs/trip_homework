@@ -122,11 +122,15 @@
   gap: 8px;
   width: 100%;
 }
+
+.searchRow {
+  display: flex;
+  gap: 16px;
+}
 .inputSection {
   display: flex;
   gap: 16px;
 }
-
 .inputWrapper {
   display: flex;
   align-items: center;
@@ -214,6 +218,10 @@
 .filterBtn img {
   cursor: pointer;
 }
+.filterBtn button {
+  border: 0;
+  background-color: white;
+}
 
 .cardArea {
   display: grid;
@@ -221,13 +229,14 @@
   gap: 32px;
   margin-top: 20px;
 }
-.cardArea > div {
+.cardLink {
   position: relative;
 }
-.cardArea img {
+.cardImage {
   border-radius: 16px;
   object-fit: cover;
   aspect-ratio: 1/1;
+  width: 296px;
 }
 .bookmark {
   position: absolute;

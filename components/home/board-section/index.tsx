@@ -4,7 +4,7 @@ import { useQuery } from "@apollo/client/react";
 import Link from "next/link";
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { FETCH_BOARDS } from "@/graphql/queries";
+import { FETCH_BOARDS, FETCH_BOARDS_COUNT } from "@/graphql/queries";
 import type { Board } from "@/types/board";
 import styles from "./styles.module.css";
 
@@ -17,28 +17,79 @@ const CARD_IMAGES = [
 
 const formatDate = (date: string) => date.slice(0, 10).replaceAll("-", ".");
 
+const PAGE_SIZE = 10;
+const PAGE_GROUP_SIZE = 5;
+
 export default function BoardSection() {
   const [keyword, setKeyword] = useState("");
-  const { data, loading, error, refetch } = useQuery<{ fetchBoards: Board[] }>(
-    FETCH_BOARDS,
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  const formatDisplay = (isoDate: string) => {
+    if (!isoDate) return "YYYY . MM . DD";
+    return isoDate.replaceAll("-", ".");
+  };
+  const onChangeStartDate = (value: string) => {
+    setStartDate(value);
+    setPage(1);
+  };
+
+  const onChangeEndDate = (value: string) => {
+    setEndDate(value);
+    setPage(1);
+  };
+  const toStartDayISO = (dateStr: string) =>
+    dateStr ? new Date(`${dateStr}T00:00:00`).toISOString() : undefined;
+
+  const toEndDayISO = (dateStr: string) =>
+    dateStr ? new Date(`${dateStr}T23:59:59.999`).toISOString() : undefined;
+
+  const { data, loading, error, previousData } = useQuery<{
+    fetchBoards: Board[];
+  }>(FETCH_BOARDS, {
+    variables: {
+      page,
+      search,
+      startDate: toStartDayISO(startDate),
+      endDate: toEndDayISO(endDate),
+    },
+    ssr: false,
+  });
+  const { data: countData } = useQuery<{ fetchBoardsCount: number }>(
+    FETCH_BOARDS_COUNT,
     {
-      variables: { page: 1, search: "" },
-      // 이 Query는 브라우저 화면이 열린 뒤 실행해요.
+      variables: {
+        search,
+        startDate: toStartDayISO(startDate),
+        endDate: toEndDayISO(endDate),
+      },
       ssr: false,
     },
   );
 
-  const boards = data?.fetchBoards ?? [];
-  // 같은 게시글 목록에서 앞의 4개만 골라 위쪽 카드에 사용해요.
+  const boards = data?.fetchBoards ?? previousData?.fetchBoards ?? [];
   const hotBoards = boards.slice(0, 4);
   const displayedBoards = boards.slice(0, 10);
 
+  const totalCount = countData?.fetchBoardsCount ?? 0;
+  const lastPage = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+  const startPage =
+    Math.floor((page - 1) / PAGE_GROUP_SIZE) * PAGE_GROUP_SIZE + 1;
+  const pages = Array.from(
+    { length: PAGE_GROUP_SIZE },
+    (_, index) => startPage + index,
+  ).filter((pageNumber) => pageNumber <= lastPage);
+
   const onSubmitSearch = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    refetch({ page: 1, search: keyword });
+    setSearch(keyword);
+    setPage(1);
   };
 
-  if (loading)
+  if (loading && !previousData)
     return <p className={styles.state}>게시글을 불러오고 있어요...</p>;
   if (error) return <p className={styles.state}>API 연결을 확인해주세요.</p>;
 
@@ -83,13 +134,36 @@ export default function BoardSection() {
 
         <div className={styles.tools}>
           <form className={styles.search} onSubmit={onSubmitSearch}>
-            {/* 날짜 검색은 모양만 먼저 만들어요. */}
             <div className={styles.dateBox}>
-              ▣&nbsp;&nbsp; YYYY. MM. DD - YYYY. MM. DD
+              <img src="/calendar.png" alt="" />
+              <div className={styles.dateField}>
+                <span className={styles.dateDisplay}>
+                  {formatDisplay(startDate)}
+                </span>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(event) => onChangeStartDate(event.target.value)}
+                  className={styles.dateInput}
+                />
+              </div>
+              <span className={styles.dateDash}>-</span>
+              <div className={styles.dateField}>
+                <span className={styles.dateDisplay}>
+                  {formatDisplay(endDate)}
+                </span>
+                <input
+                  type="date"
+                  value={endDate}
+                  min={startDate || undefined}
+                  onChange={(event) => onChangeEndDate(event.target.value)}
+                  className={styles.dateInput}
+                />
+              </div>
             </div>
 
             <label className={styles.searchBox}>
-              <span>⌕</span>
+              <img src="/search.png" alt="" />
               <input
                 value={keyword}
                 onChange={(event) => setKeyword(event.target.value)}
@@ -118,7 +192,9 @@ export default function BoardSection() {
 
           {displayedBoards.map((board, index) => (
             <div className={styles.row} key={board._id}>
-              <span className={styles.number}>{243 - index}</span>
+              <span className={styles.number}>
+                {totalCount - (page - 1) * PAGE_SIZE - index}
+              </span>
               <Link className={styles.titleCell} href={`/boards/${board._id}`}>
                 {board.title}
               </Link>
@@ -132,15 +208,35 @@ export default function BoardSection() {
           ))}
 
           <div className={styles.pagination}>
-            <button type="button">‹</button>
-            <button className={styles.selected} type="button">
-              1
+            <button
+              type="button"
+              disabled={startPage === 1}
+              className={styles.arrow}
+              onClick={() => setPage(startPage - 1)}
+            >
+              ‹
             </button>
-            <button type="button">2</button>
-            <button type="button">3</button>
-            <button type="button">4</button>
-            <button type="button">5</button>
-            <button type="button">›</button>
+            <div className={styles.paginationNumbers}>
+              {pages.map((pageNumber) => (
+                <button
+                  key={pageNumber}
+                  type="button"
+                  className={page === pageNumber ? styles.selected : ""}
+                  onClick={() => setPage(pageNumber)}
+                >
+                  {pageNumber}
+                </button>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              disabled={startPage + PAGE_GROUP_SIZE > lastPage}
+              className={styles.arrow}
+              onClick={() => setPage(startPage + PAGE_GROUP_SIZE)}
+            >
+              ›
+            </button>
           </div>
         </div>
       </div>

@@ -3,49 +3,13 @@
 import { gql } from "@apollo/client";
 import { useState } from "react";
 import { useQuery } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import Link from "next/link";
 import styles from "./styles.module.css";
 import { FiCalendar, FiSearch, FiEdit3 } from "react-icons/fi";
-import { FETCH_BOARDS } from "@/graphql/queries";
-import { Card, MOCK_CARDS } from "@/types/card";
-
-const FETCH_TRAVELPRODUCTS = gql`
-  query FetchTravelproducts($page: Int) {
-    fetchTravelproducts(page: $page) {
-      _id
-      name
-      remarks
-      price
-      images
-      contents
-      tags
-      pickedCount
-      soldAt
-      seller {
-        name
-      }
-    }
-  }
-`;
-
-type Travelproduct = {
-  _id: string;
-  name: string;
-  remarks: string;
-  price: number;
-  images: string[];
-  contents: string;
-  tags: string[];
-  pickedCount: number;
-  soldAt: boolean;
-  seller: {
-    name: string;
-  };
-};
-
-type FetchTravelproductsData = {
-  fetchTravelproducts: Travelproduct[];
-};
+import type { FormEvent } from "react";
+import { Fetch_Travel_Products, FETCH_USER_LOGGED_IN } from "@/graphql/queries";
+import { TOGGLE_TRAVELPRODUCT_PICK } from "@/graphql/mutations";
 
 const getImageUrl = (path: string) => {
   if (path.startsWith("http")) return path;
@@ -56,17 +20,30 @@ interface BuySectionProps {
   onStartSell?: () => void;
 }
 
+const PAGE_SIZE = 10;
+const PAGE_GROUP_SIZE = 5;
+
 export default function BuySection({ onStartSell }: BuySectionProps) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isSoldout, setIsSoldout] = useState(false);
+  const [category, setCategory] = useState("");
+  const [page, setPage] = useState(1);
+  const [keyword, setKeyword] = useState("");
+  const [search, setSearch] = useState("");
+  const [toggleTravelproductPick] = useMutation(TOGGLE_TRAVELPRODUCT_PICK);
+  const { data: userData } = useQuery(FETCH_USER_LOGGED_IN);
+  const loggedInUser = userData?.fetchUserLoggedIn;
 
-  const { data, loading, error } = useQuery<FetchTravelproductsData>(
-    FETCH_TRAVELPRODUCTS,
+  const { data, loading, error, previousData } = useQuery(
+    Fetch_Travel_Products,
     {
-      variables: { page: 1 },
-      context: { apiName: "practice" },
+      variables: {
+        page,
+        search: search || undefined,
+        isSoldout: isSoldout || undefined,
+      },
     },
   );
-
   if (loading)
     return <main className={styles.page}>숙박권을 불러오는 중...</main>;
   if (error)
@@ -75,6 +52,61 @@ export default function BuySection({ onStartSell }: BuySectionProps) {
         속박권을 불러오는 중 오류가 발생했습니다.
       </main>
     );
+
+  const products =
+    data?.fetchTravelproducts ?? previousData?.fetchTravelproducts ?? [];
+
+  const onSubmitSearch = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setCategory("");
+    setSearch(keyword);
+    setPage(1);
+  };
+
+  const onClickCategory = (selectedCategory: string) => {
+    if (category === selectedCategory) {
+      setCategory("");
+      setKeyword("");
+      setSearch("");
+    } else {
+      setCategory(selectedCategory);
+      setKeyword("");
+      setSearch(selectedCategory);
+    }
+    setPage(1);
+  };
+
+  const onClickBookmark = async (
+    event: React.MouseEvent<HTMLButtonElement>,
+    travelproductId: string,
+  ) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!loggedInUser) {
+      alert("로그인이 필요한 기능이에요.");
+      return;
+    }
+    try {
+      const result = await toggleTravelproductPick({
+        variables: { travelproductId },
+        update: (cache, mutationResult) => {
+          const isPickedNow = mutationResult.data?.toggleTravelproductPick;
+          cache.modify({
+            id: cache.identify({
+              __typename: "Travelproduct",
+              _id: travelproductId,
+            }),
+            fields: {
+              pickedCount: (existing: number) =>
+                isPickedNow ? existing + 1 : existing - 1,
+            },
+          });
+        },
+      });
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "찜하기에 실패했어요.");
+    }
+  };
 
   const boards = [
     {
@@ -93,45 +125,16 @@ export default function BuySection({ onStartSell }: BuySectionProps) {
       image: "/01a0e2ed16b1635ee65d3521b8e6c956cee739d1.jpg",
     },
   ];
-
-  const filterImg = [
-    {
-      id: "1",
-      image: "/Frame 427323240.png",
-    },
-    {
-      id: "2",
-      image: "/Frame 427323244.png",
-    },
-    {
-      id: "3",
-      image: "/Frame 427323238.png",
-    },
-    {
-      id: "4",
-      image: "/Frame 427323228.png",
-    },
-    {
-      id: "5",
-      image: "/Frame 427323239.png",
-    },
-    {
-      id: "6",
-      image: "/Frame 427323241.png",
-    },
-    {
-      id: "7",
-      image: "/Frame 427323242.png",
-    },
-    {
-      id: "8",
-      image: "/Frame 427323243.png",
-    },
-
-    {
-      id: "9",
-      image: "/Frame 427323237.png",
-    },
+  const categories = [
+    { name: "1인 전용", image: "/Frame 427323240.png" },
+    { name: "아파트", image: "/Frame 427323244.png" },
+    { name: "호텔", image: "/Frame 427323238.png" },
+    { name: "캠핑", image: "/Frame 427323228.png" },
+    { name: "룸 서비스", image: "/Frame 427323239.png" },
+    { name: "불멍", image: "/Frame 427323241.png" },
+    { name: "반식욕&스파", image: "/Frame 427323242.png" },
+    { name: "바다 위 숙소", image: "/Frame 427323243.png" },
+    { name: "플랜테리어", image: "/Frame 427323237.png" },
   ];
   const IMAGES = [
     "/f71f586e48aa048c2fa07145d5b85734bd66003b.jpg",
@@ -197,20 +200,22 @@ export default function BuySection({ onStartSell }: BuySectionProps) {
               />
             </div>
 
-            {/* 검색어 입력 */}
-            <div
-              className={`${styles.inputWrapper} ${styles.searchInputWrapper}`}
-            >
-              <FiSearch className={styles.inputIcon} />
-              <input
-                type="text"
-                placeholder="제목을 검색해 주세요."
-                className={styles.searchInput}
-              />
-            </div>
+            <form className={styles.searchRow} onSubmit={onSubmitSearch}>
+              <div
+                className={`${styles.inputWrapper} ${styles.searchInputWrapper}`}
+              >
+                <FiSearch className={styles.inputIcon} />
+                <input
+                  type="text"
+                  placeholder="제목을 검색해 주세요."
+                  value={keyword}
+                  onChange={(event) => setKeyword(event.target.value)}
+                  className={styles.searchInput}
+                />
+              </div>
 
-            {/* 버튼 영역 */}
-            <button className={styles.searchBtn}>검색</button>
+              <button className={styles.searchBtn}>검색</button>
+            </form>
           </div>
           <Link className={styles.sellBtn} href="/travelproducts/sell">
             <FiEdit3 className={styles.btnIcon} />
@@ -218,12 +223,15 @@ export default function BuySection({ onStartSell }: BuySectionProps) {
           </Link>
         </div>
         <div className={styles.filterBtn}>
-          {filterImg.map((btn, index) => (
-            <img
-              src={filterImg[index].image}
-              alt={"필터" + filterImg[index].id}
-              key={filterImg[index].id}
-            />
+          {categories.map((item) => (
+            <button
+              className={category === item.name ? styles.active : ""}
+              type="button"
+              key={item.name}
+              onClick={() => onClickCategory(item.name)}
+            >
+              {item.image && <img src={item.image} alt={`필터 ${item.name}`} />}
+            </button>
           ))}
         </div>
         <div className={styles.cardArea}>
@@ -231,19 +239,29 @@ export default function BuySection({ onStartSell }: BuySectionProps) {
             <Link
               href={`/travelproducts/${card._id}?imgIndex=${index % IMAGES.length}`}
               key={card._id}
+              className={styles.cardLink}
             >
               {card.images?.[0] ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={getImageUrl(card.images[0])} alt={card.name} />
+                <img
+                  src={getImageUrl(card.images[0])}
+                  alt={card.name}
+                  className={styles.cardImage}
+                />
               ) : (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={IMAGES[index % IMAGES.length]}
                   alt={card.name ?? "상품 이미지"}
+                  className={styles.cardImage}
                 />
               )}
               <div className={styles.cardInfoArea}>
-                <button className={styles.bookmark}>
+                <button
+                  className={styles.bookmark}
+                  type="button"
+                  onClick={(event) => onClickBookmark(event, card._id)}
+                >
                   <img src="/bookmark.png" />
                   <span>{card.pickedCount}</span>
                 </button>
@@ -274,6 +292,32 @@ export default function BuySection({ onStartSell }: BuySectionProps) {
             </Link>
           ))}
         </div>
+        {/*
+        <nav className={styles.pagination}>
+          <button
+            disabled={startPage === 1}
+            onClick={() => setPage(startPage - 1)}
+          >
+            ‹
+          </button>
+
+          {pages.map((pageNumber) => (
+            <button
+              key={pageNumber}
+              className={page === pageNumber ? styles.active : ""}
+              onClick={() => setPage(pageNumber)}
+            >
+              {pageNumber}
+            </button>
+          ))}
+
+          <button
+            disabled={!hasNextPage}
+            onClick={() => setPage(startPage + PAGE_GROUP_SIZE)}
+          >
+            ›
+          </button>
+        </nav> */}
       </div>
       <div className={styles.recentBar}>
         <div className={styles.recentTitle}>최근 본 상품</div>

@@ -36,3 +36,15 @@ export const CREATE_TRAVELPRODUCT = gql`
     }
   }
 `;
+
+export const DELETE_TRAVELPRODUCT = gql`
+  mutation DeleteTravelproduct($travelproductId: ID!) {
+    deleteTravelproduct(travelproductId: $travelproductId)
+  }
+`;
+
+export const TOGGLE_TRAVELPRODUCT_PICK = gql`
+  mutation ToggleTravelproductPick($travelproductId: ID!) {
+    toggleTravelproductPick(travelproductId: $travelproductId)
+  }
+`;
