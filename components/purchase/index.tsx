@@ -19,6 +19,19 @@ const getImageUrl = (path: string) => {
 interface BuySectionProps {
   onStartSell?: () => void;
 }
+type TravelProduct = {
+  _id: string;
+  name: string;
+  remarks: string;
+  price: number;
+  tags: string[];
+  images: string[];
+  pickedCount: number;
+  seller: { name: string } | null;
+};
+type FetchTravelproductsData = {
+  fetchTravelproducts: TravelProduct[];
+};
 
 const PAGE_SIZE = 10;
 const PAGE_GROUP_SIZE = 5;
@@ -34,16 +47,14 @@ export default function BuySection({ onStartSell }: BuySectionProps) {
   const { data: userData } = useQuery(FETCH_USER_LOGGED_IN);
   const loggedInUser = userData?.fetchUserLoggedIn;
 
-  const { data, loading, error, previousData } = useQuery(
-    Fetch_Travel_Products,
-    {
+  const { data, loading, error, previousData } =
+    useQuery<FetchTravelproductsData>(Fetch_Travel_Products, {
       variables: {
         page,
         search: search || undefined,
         isSoldout: isSoldout || undefined,
       },
-    },
-  );
+    });
   if (loading)
     return <main className={styles.page}>숙박권을 불러오는 중...</main>;
   if (error)
